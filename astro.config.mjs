@@ -11,4 +11,10 @@ export default defineConfig({
 			applyBaseStyles: false,
 		}),
 	],
+	vite: {
+		ssr: {
+			// d3 packages were migrated to ESM in 0.81 which nivo does not yet support
+			noExternal: [/^d3.*$/, /^@nivo.*$/],
+		},
+	},
 });

@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react';
 import dayjs from 'dayjs';
 import { round } from '../utils/round';
 import type { DB } from 'kysely-codegen';
+import { ResponsiveLine } from '@nivo/line';
 
 
 export default function Component() {
-	const [temp, setTemp] = useState<number | null>(30.00);
-	const [humidity, setHumidity] = useState<number | null>(70.00);
-	const [pressure, setPressure] = useState<number | null>(1013.00);
+	const [temp, setTemp] = useState<number[]>([30.0]);
+	const [humidity, setHumidity] = useState<number[]>([70.00]);
+	const [pressure, setPressure] = useState<number[]>([1013.00]);
 	const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 	const [imgSrc, setImgSrc] = useState<string | null>(null);
 
@@ -19,9 +20,9 @@ export default function Component() {
 
 			console.log(res);
 
-			setTemp(round(res.temp));
-			setHumidity(round(res.humidity));
-			setPressure(round(res.pressure, 1));
+			setTemp((prev) => [...prev.slice(-9), round(res.temp)]);
+			setHumidity((prev) => [...prev.slice(-9), round(res.humidity)]);
+			setPressure((prev) => [...prev.slice(-9), round(res.pressure)]);
 			setLastUpdated(dayjs(new Date(res.time as unknown as string)).format('hh:mm:ss a'));
 
 			// check if res.img has protocol, if not, prepend JPEG data URL
@@ -43,7 +44,7 @@ export default function Component() {
 	, []);
 
 	return (
-		<div className="flex flex-col h-screen">
+		<div className="flex flex-col h-screen overflow-hidden">
 			<header className="bg-gray-900 text-white flex items-center justify-between px-6 py-4">
 				<div className="text-lg font-bold">Dashboard</div>
 				<div className="text-sm">
@@ -67,18 +68,69 @@ export default function Component() {
 				<div className="bg-gray-900 text-white w-64 p-6 space-y-6">
 					<div className="bg-gray-800 rounded-lg p-4 space-y-2">
 						<div className="text-sm font-medium">Temperature</div>
-						<div className="text-3xl font-bold">{temp}°C</div>
-						<div className="h-20 bg-gray-700 rounded-lg" />
+						<div className="text-3xl font-bold">{temp[temp.length - 1]}°C</div>
+						<div className="h-20 bg-gray-700 rounded-lg">
+							<ResponsiveLine
+								data={[{
+									id: 'Temperature',
+									data: temp.map((t, i) => ({ x: i, y: t })),
+								}]}
+								margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+								xScale={{ type: 'point' }}
+								yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
+								useMesh={true}
+								enableGridX={false}
+								tooltip={({ point }) => (
+									<div className="bg-[#08005c] text-white text-sm p-2 rounded-lg relative right-20">
+										<div>Temperature: {point.data.yFormatted}°C</div>
+									</div>
+								)}
+							/>
+						</div>
 					</div>
 					<div className="bg-gray-800 rounded-lg p-4 space-y-2">
 						<div className="text-sm font-medium">Humidity</div>
-						<div className="text-3xl font-bold">{humidity}%</div>
-						<div className="h-20 bg-gray-700 rounded-lg" />
+						<div className="text-3xl font-bold">{humidity[humidity.length - 1]}%</div>
+						<div className="h-20 bg-gray-700 rounded-lg">
+							<ResponsiveLine
+								data={[{
+									id: 'Humidity',
+									data: humidity.map((h, i) => ({ x: i, y: h })),
+								}]}
+								margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+								xScale={{ type: 'point' }}
+								yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
+								useMesh={true}
+								enableGridX={false}
+								tooltip={({ point }) => (
+									<div className="bg-[#08005c] text-white text-sm p-2 rounded-lg relative right-20">
+										<div>Humidity: {point.data.yFormatted}%</div>
+									</div>
+								)}
+							/>
+						</div>
 					</div>
 					<div className="bg-gray-800 rounded-lg p-4 space-y-2">
 						<div className="text-sm font-medium">Pressure</div>
-						<div className="text-3xl font-bold">{pressure} hPa</div>
-						<div className="h-20 bg-gray-700 rounded-lg" />
+						<div className="text-3xl font-bold">{pressure[pressure.length - 1]} hPa</div>
+						<div className="h-20 bg-gray-700 rounded-lg">
+							<ResponsiveLine
+								data={[{
+									id: 'Pressure',
+									data: pressure.map((p, i) => ({ x: i, y: p })),
+								}]}
+								margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+								xScale={{ type: 'point' }}
+								yScale={{ type: 'linear', min: 'auto', max: 'auto', stacked: false, reverse: false }}
+								useMesh={true}
+								enableGridX={false}
+								tooltip={({ point }) => (
+									<div className="bg-[#08005c] text-white text-sm p-2 rounded-lg relative right-20">
+										<div>Pressure: {point.data.yFormatted} hPa</div>
+									</div>
+								)}
+							/>
+						</div>
 					</div>
 				</div>
 			</div>
