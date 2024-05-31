@@ -7,13 +7,23 @@
     "start": "astro dev",
     "build": "astro check && astro build",
     "preview": "astro preview",
+    "gen-db-types": "kysely-codegen",
     "astro": "astro"
   },
   "dependencies": {
     "@astrojs/check": "^0.7.0",
+    "@astrojs/react": "^3.4.0",
+    "@astrojs/tailwind": "^5.1.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
     "astro": "^4.9.2",
+    "dayjs": "^1.11.11",
+    "ky": "^1.2.4",
     "kysely": "^0.27.3",
     "pg": "^8.11.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.3",
     "typescript": "^5.4.5"
   },
   "packageManager": "yarn@4.2.2",
