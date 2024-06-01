@@ -1,20 +1,27 @@
 import ky from 'ky';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import dayjs from 'dayjs';
 import { round } from '../utils/round';
 import type { DB } from 'kysely-codegen';
 import { ResponsiveLine } from '@nivo/line';
 
 
+// import * as tf from '@tensorflow/tfjs';
+// import cocossd from '@tensorflow-models/coco-ssd';
+// import '@tensorflow/tfjs-backend-cpu';
+// import '@tensorflow/tfjs-backend-webgl';
+// import '@tensorflow/tfjs-backend-webgpu';
+
 export default function Component() {
 	const [temp, setTemp] = useState<number[]>([30.0]);
 	const [humidity, setHumidity] = useState<number[]>([70.00]);
 	const [pressure, setPressure] = useState<number[]>([1013.00]);
 	const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-	const [imgSrc, setImgSrc] = useState<string | null>(null);
+
+	const canvasRef = useRef<HTMLCanvasElement>(null);
 
 
-	const updateTempData = async () => {
+	const updateTempData = async (ctx: CanvasRenderingContext2D) => {
 		try {
 			const res: DB['temp_data'] = await ky.get('/api/get-newest-temp').json();
 
@@ -27,7 +34,15 @@ export default function Component() {
 
 			// check if res.img has protocol, if not, prepend JPEG data URL
 			if (res.img && (!res.img.startsWith('data:') || !res.img.startsWith('http'))) {
-				setImgSrc(`data:image/jpeg;base64,${res.img}`);
+				// setImgSrc(`data:image/jpeg;base64,${res.img}`);
+				const img = new Image();
+				img.src = `data:image/jpeg;base64,${res.img}`;
+				img.onload = () => {
+					ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+
+					const event = new CustomEvent('new-image', { detail: { img } });
+					window.dispatchEvent(event);
+				};
 			}
 		}
 		catch (e) {
@@ -36,8 +51,31 @@ export default function Component() {
 	};
 
 	useEffect(() => {
-		updateTempData();
-		const interval = setInterval(updateTempData, 5000);
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+
+		const ctx = canvas.getContext('2d');
+
+		// set resolution
+		canvas.width = 1280;
+		canvas.height = 720;
+
+		// write "Loading..." on canvas
+		ctx.fillStyle = 'white';
+		ctx.font = '20px \'Rethink Sans\'';
+		ctx.textAlign = 'center';
+		ctx.fillText('Loading...', canvas.width / 2, canvas.height / 2);
+
+
+		// (async () => {
+		// 	await tf.setBackend('webgl');
+		// 	console.log(tf.getBackend());
+		// 	// await tf.setBackend('webgpu');
+		// })();
+
+
+		updateTempData(ctx);
+		const interval = setInterval(() => updateTempData(ctx), 1000 * 60 * 10);
 
 		return () => clearInterval(interval);
 	}
@@ -58,11 +96,7 @@ export default function Component() {
 			<div className="flex flex-1">
 				<div className="bg-gray-800 text-white p-6 flex-1">
 					<div className="aspect-video bg-gray-700 rounded-lg">
-						{imgSrc ? (
-							<img src={imgSrc} alt="Camera feed" className="object-cover w-full h-full rounded-lg" />
-						) : (
-							<div className="flex items-center justify-center w-full h-full text-2xl font-bold">Loading...</div>
-						)}
+						<canvas ref={canvasRef} className="object-cover w-full h-full rounded-lg" />
 					</div>
 				</div>
 				<div className="bg-gray-900 text-white w-64 p-6 space-y-6">
