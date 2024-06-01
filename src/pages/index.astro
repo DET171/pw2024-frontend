@@ -41,7 +41,8 @@ import Dashboard from '../components/Dashboard';
 					const [x, y, width, height] = prediction.bbox;
 					const text = `${prediction.class} (${Math.round(prediction.score * 100)}%)`;
 					const area = width * height;
-					if (area <= 10000) {
+					// TODO: Filter out areas that are far too small or too large
+					if (area) {
 						ctx.strokeText(text, x, y - 5);
 						ctx.fillText(text, x, y - 5);
 						ctx.strokeRect(x, y, width, height);
