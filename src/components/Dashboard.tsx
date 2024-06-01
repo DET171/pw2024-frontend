@@ -37,11 +37,34 @@ export default function Component() {
 				// setImgSrc(`data:image/jpeg;base64,${res.img}`);
 				const img = new Image();
 				img.src = `data:image/jpeg;base64,${res.img}`;
-				img.onload = () => {
+				img.onload = async () => {
 					ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
 
-					const event = new CustomEvent('new-image', { detail: { img } });
-					window.dispatchEvent(event);
+					// const event = new CustomEvent('new-image', { detail: { img } });
+					// window.dispatchEvent(event);
+
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					const model = (window as any).model;
+					const predictions = model ? await model.detect(img) : [];
+					console.log(predictions);
+
+					// draw predictions
+					ctx.strokeStyle = 'red';
+					ctx.lineWidth = 2;
+					ctx.font = '16px \'Rethink Sans\', sans-serif';
+					ctx.fillStyle = 'white';
+					for (const prediction of predictions) {
+						const [x, y, width, height] = prediction.bbox;
+						const text = `${prediction.class} (${Math.round(prediction.score * 100)}%)`;
+						const area = width * height;
+						// TODO: Filter out areas that are far too small or too large
+						if (area) {
+							ctx.strokeText(text, x, y - 5);
+							ctx.fillText(text, x, y - 5);
+							ctx.strokeRect(x, y, width, height);
+						}
+					}
+
 				};
 			}
 		}

@@ -24,31 +24,8 @@ import Dashboard from '../components/Dashboard';
 		<script is:inline src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"> </script>
 		<script is:inline type="module">
 			const model = await cocoSsd.load();
+			window.model = model;
 			console.log(model);
-
-			window.addEventListener('new-image', async () => {
-				const canvasEl = document.querySelector('canvas');
-				const predictions = await model.detect(canvasEl);
-				console.log(predictions);
-
-				const ctx = canvasEl.getContext('2d');
-				ctx.font = '16px \'Rethink Sans\', sans-serif';
-				ctx.fillStyle = 'white';
-				ctx.strokeStyle = 'black';
-				ctx.lineWidth = 2;
-
-				for (const prediction of predictions) {
-					const [x, y, width, height] = prediction.bbox;
-					const text = `${prediction.class} (${Math.round(prediction.score * 100)}%)`;
-					const area = width * height;
-					// TODO: Filter out areas that are far too small or too large
-					if (area) {
-						ctx.strokeText(text, x, y - 5);
-						ctx.fillText(text, x, y - 5);
-						ctx.strokeRect(x, y, width, height);
-					}
-				}
-			});
 		</script>
 	</body>
 </html>
