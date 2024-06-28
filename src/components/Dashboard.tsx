@@ -48,6 +48,33 @@ export default function Component() {
 					const predictions = model ? await model.detect(img) : [];
 					console.log(predictions);
 
+					// send notifications
+					const [latest_temp, latest_humidity, latest_pressure] = [
+						temp[temp.length - 1],
+						humidity[humidity.length - 1],
+						pressure[humidity.length - 1],
+					];
+
+					console.log(latest_temp, latest_humidity, latest_pressure);
+
+					if (latest_temp > 30) {
+						new Notification('The temperature in the car is dangerously high!', {
+							silent: false,
+						});
+					}
+
+					if (latest_humidity > 85) {
+						new Notification('The humidity in the car is dangerously high!', {
+							silent: false,
+						});
+					}
+
+					if (latest_pressure > 1150) {
+						new Notification('The pressure in the car is dangerously high!', {
+							silent: false,
+						});
+					}
+
 					// draw predictions
 					ctx.strokeStyle = 'red';
 					ctx.lineWidth = 2;
@@ -76,6 +103,24 @@ export default function Component() {
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
+
+		(async () => {
+			await window.Notification.requestPermission();
+
+			console.log('Notification' in window);
+
+			Notification.requestPermission().then(() => {
+				if (Notification.permission === 'denied' || Notification.permission === 'default') {
+					alert('Please enable notifications');
+				}
+				else {
+					console.log('e');
+					// new Notification('Hello there', {
+					// 	silent: false,
+					// });
+				}
+			});
+		})();
 
 		const ctx = canvas.getContext('2d');
 
