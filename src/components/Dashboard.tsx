@@ -58,7 +58,7 @@ export default function Component() {
 
 					console.log(latest_temp, latest_humidity, latest_pressure);
 
-					if (latest_temp > 30) {
+					if (latest_temp > 23) {
 						new Notification('The temperature in the car is dangerously high!', {
 							silent: false,
 						});
@@ -144,7 +144,7 @@ export default function Component() {
 
 
 		updateTempData(ctx);
-		const interval = setInterval(() => updateTempData(ctx), 1000 * 60 * 10);
+		const interval = setInterval(() => updateTempData(ctx), 1000 * 5);
 
 		return () => clearInterval(interval);
 	}

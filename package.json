@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro check && astro build",
+    "build": "yarn gen-db-types && astro check && astro build",
     "preview": "astro preview",
     "gen-db-types": "kysely-codegen",
     "astro": "astro"
