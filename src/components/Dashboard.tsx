@@ -57,7 +57,7 @@ export default function Component() {
 
 					console.log(latest_temp, latest_humidity, latest_pressure);
 
-					if (latest_temp > 30) {
+					if (latest_temp > 20) {
 						new Notification('The temperature in the car is dangerously high!', {
 							silent: false,
 						});
@@ -110,6 +110,7 @@ export default function Component() {
 			console.log('Notification' in window);
 
 			Notification.requestPermission().then(() => {
+				// alert(Notification.permission);
 				if (Notification.permission === 'denied' || Notification.permission === 'default') {
 					alert('Please enable notifications');
 				}
