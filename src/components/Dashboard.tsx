@@ -111,6 +111,7 @@ export default function Component() {
 			console.log('Notification' in window);
 
 			Notification.requestPermission().then(() => {
+				// alert(Notification.permission);
 				if (Notification.permission === 'denied' || Notification.permission === 'default') {
 					alert('Please enable notifications');
 				}
