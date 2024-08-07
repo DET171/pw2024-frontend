@@ -45,6 +45,7 @@ export default function Component() {
 
 					// eslint-disable-next-line @typescript-eslint/no-explicit-any
 					const model = (window as any).model;
+					console.log(model);
 					const predictions = model ? await model.detect(img) : [];
 					console.log(predictions);
 
@@ -151,7 +152,7 @@ export default function Component() {
 	, []);
 
 	return (
-		<div className="flex flex-col h-screen overflow-hidden">
+		<div className="flex flex-col h-screen">
 			<header className="bg-gray-900 text-white flex items-center justify-between px-6 py-4">
 				<div className="text-lg font-bold">Dashboard</div>
 				<div className="text-sm">
@@ -164,7 +165,7 @@ export default function Component() {
 			</header>
 			<div className="flex flex-1">
 				<div className="bg-gray-800 text-white p-6 flex-1">
-					<div className="aspect-video bg-gray-700 rounded-lg">
+					<div className="bg-gray-700 rounded-lg aspect-video">
 						<canvas ref={canvasRef} className="object-cover w-full h-full rounded-lg" />
 					</div>
 				</div>
